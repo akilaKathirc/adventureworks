@@ -1,0 +1,9 @@
+{
+	"name": "dbrdollaradf",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "b1a92629-295a-4e20-8b62-90c859d3e58a",
+		"tenantId": "80c649eb-2a8c-4034-a7e1-5f99a3e482d6"
+	}
+}
