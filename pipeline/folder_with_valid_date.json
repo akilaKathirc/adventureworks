@@ -1,0 +1,81 @@
+{
+	"name": "folder_with_valid_date",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DelimitedText2",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"parameters": [
+								{
+									"name": "metadata_childitems",
+									"type": "String",
+									"value": {
+										"value": "@string(activity('Get Metadata1').output.childItems)\n",
+										"type": "Expression"
+									},
+									"direction": "Input"
+								}
+							],
+							"type": "Query",
+							"text": "DECLARE @getmetadataoutput NVARCHAR(MAX);\n\n-- This parameter is injected by ADF\nSET @getmetadataoutput = @metadata_childitems;\n\nSELECT FolderName\nFROM OPENJSON(@getmetadataoutput)\nWITH (\n    FolderName VARCHAR(50) '$.name'\n)\nWHERE ISDATE(FolderName) = 1;\n"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
